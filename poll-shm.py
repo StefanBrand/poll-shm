@@ -52,7 +52,7 @@ while True:
     for frid in finished_rids:
         status = oauth.request('GET', f'{url}{frid}').json()['status']
         if status == 'DONE':
-            with open('endtimestamps.csv', 'a') as file:
+            with open('static/endtimestamps.csv', 'a') as file:
                 writer = csv.writer(file)
                 writer.writerow([frid,datetime.today().isoformat()]) # log end time
 

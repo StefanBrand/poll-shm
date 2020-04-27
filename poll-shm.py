@@ -28,6 +28,13 @@ old_rids = set()
 active_rids = set()
 
 while True:
+    # Fetch new token when needed
+    if token['expires_at'] - time.time() < 600:
+        token = oauth.fetch_token(
+            token_url='https://services.sentinel-hub.com/oauth/token',
+            client_id=client_id, client_secret=client_secret
+        )
+
     # Query REST endpoint for all requests
     viewtoken = 0
     requests = []

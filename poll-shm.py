@@ -55,9 +55,10 @@ while True:
         creation_dt = datetime.fromisoformat(response['created'].strip('Z'))
         if status == 'DONE':
             duration = datetime.utcnow()-creation_dt
+            description = response['description']
             with open('static/duration.csv', 'a') as file:
                 writer = csv.writer(file)
-                writer.writerow([frid, duration]) # log end time
+                writer.writerow([description, frid, duration]) # log end time
             print(datetime.today().isoformat(), frid, 'TOOK', duration, 'TO COMPLETE')
 
     # Outdate active request ids

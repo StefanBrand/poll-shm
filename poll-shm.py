@@ -34,6 +34,7 @@ while True:
             token_url='https://services.sentinel-hub.com/oauth/token',
             client_id=client_id, client_secret=client_secret
         )
+        print(datetime.today().isoformat(), 'NEW TOKEN FETCHED')
 
     # Query REST endpoint for all requests
     viewtoken = 0
@@ -44,8 +45,7 @@ while True:
         viewtoken=response['view']['nextToken']
 
     active_rids = set([r['id'] for r in requests if r['status'] == 'PROCESSING' and r['userAction'] == 'START'])
-    now = datetime.today().isoformat()
-    print('active:', active_rids, now)
+    print(datetime.today().isoformat(), 'CURRENTLY PROCESSING:', active_rids)
 
     # Log end time of finished requests
     finished_rids = old_rids - active_rids
@@ -54,15 +54,13 @@ while True:
         status = response['status']
         creation_dt = datetime.fromisoformat(response['created'].strip('Z'))
         if status == 'DONE':
+            duration = datetime.utcnow()-creation_dt
             with open('static/duration.csv', 'a') as file:
                 writer = csv.writer(file)
-                writer.writerow([ # log end time
-                    frid,
-                    datetime.utcnow()-creation_dt
-                ])
+                writer.writerow([frid, duration]) # log end time
+            print(datetime.today().isoformat(), frid, 'TOOK', duration, 'TO COMPLETE')
 
     # Outdate active request ids
     old_rids = active_rids
-    print('old:', old_rids)
 
     time.sleep(1)

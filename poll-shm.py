@@ -50,11 +50,16 @@ while True:
     # Log end time of finished requests
     finished_rids = old_rids - active_rids
     for frid in finished_rids:
-        status = oauth.request('GET', f'{url}{frid}').json()['status']
+        response = oauth.request('GET', f'{url}{frid}').json()
+        status = response['status']
+        creation_dt = datetime.fromisoformat(response['created'].strip('Z'))
         if status == 'DONE':
-            with open('static/endtimestamps.csv', 'a') as file:
+            with open('static/duration.csv', 'a') as file:
                 writer = csv.writer(file)
-                writer.writerow([frid,datetime.today().isoformat()]) # log end time
+                writer.writerow([ # log end time
+                    frid,
+                    datetime.utcnow()-creation_dt
+                ])
 
     # Outdate active request ids
     old_rids = active_rids

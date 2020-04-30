@@ -6,6 +6,12 @@ This Docker app polls your Sentinel Hub Batch API requests for status changes\* 
 
 ## Usage instructions
 
+1. Start Sentinel Hub Batch API requests
+2. Wait until their status switches to `DONE`
+3. Click the link "Download `duration.csv`"
+
+## Build instructions
+
 ```
 docker build -t poll-shm:latest .
 

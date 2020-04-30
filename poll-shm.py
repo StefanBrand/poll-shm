@@ -47,19 +47,34 @@ while True:
     active_rids = set([r['id'] for r in requests if r['status'] == 'PROCESSING' and r['userAction'] == 'START'])
     print(datetime.today().isoformat(), 'CURRENTLY PROCESSING:', active_rids)
 
-    # Log end time of finished requests
+    # Log measurements of finished requests
     finished_rids = old_rids - active_rids
     for frid in finished_rids:
         response = oauth.request('GET', f'{url}{frid}').json()
         status = response['status']
         creation_dt = datetime.fromisoformat(response['created'].strip('Z'))
+
         if status == 'DONE':
             duration = datetime.utcnow()-creation_dt
             description = response['description']
+
+            # Get total costs of finished request
+            tiles = []
+            viewtoken = 0
+            while viewtoken is not None:
+                response = oauth.request('GET', f'{url}{frid}/tiles?viewtoken={viewtoken}').json()
+                tiles.extend(response['member'])
+                viewtoken=response['view']['nextToken']
+            costs = sum([t['cost'] for t in tiles])
+
+            # Write file
             with open('static/duration.csv', 'a') as file:
                 writer = csv.writer(file)
-                writer.writerow([description, frid, duration]) # log end time
+                writer.writerow([description, frid, creation_dt.isoformat(), duration, costs])
+
+            # Log to terminal
             print(datetime.today().isoformat(), frid, 'TOOK', duration, 'TO COMPLETE')
+            print(datetime.today().isoformat(), f'COSTS OF {frid}: {costs:.4f} PU')
 
     # Outdate active request ids
     old_rids = active_rids

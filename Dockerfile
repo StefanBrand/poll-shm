@@ -8,7 +8,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Prepare duration.csv
 RUN mkdir static
-RUN echo "description,request id,duration" > static/duration.csv
+RUN echo "description,request id,start time,execution time,costs" > static/duration.csv
 
 EXPOSE 5000
 
